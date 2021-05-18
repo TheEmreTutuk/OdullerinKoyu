@@ -115,8 +115,8 @@ local war
     end)
 
 --Three page
-local page3 = venyx:addPage("Quests Maker", 5012544693)
-local d = page3:addSection("Quests Maker")
+local page3 = venyx:addPage("Gorev Yapici", 5012544693)
+local d = page3:addSection("Gorevler")
 
     d:addButton("Rushlar",function()
 		for i = 1,300 do
