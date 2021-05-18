@@ -221,7 +221,7 @@ if game.PlaceId == menuplace then
         setclipboard("https://discord.gg/eNM6ZRrhrX")
     end)
 else
-    e:Label("YOU MUST RUN THIS IN MAIN MENU",{
+    e:Label("Main Menuye Git Burasi Main Menu Degil!",{
         TextSize = 15;
         TextColor = Color3.fromRGB(255,255,255); 
         BgColor = Color3.fromRGB(117, 50, 168);
