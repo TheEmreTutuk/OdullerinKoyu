@@ -1,0 +1,170 @@
+repeat wait() until game:IsLoaded()
+--antiafk
+local VirtualUser=game:service'VirtualUser'
+	game:service'Players'.LocalPlayer.Idled:connect(function()
+	warn("anti-afk")
+	VirtualUser:CaptureController()
+	VirtualUser:ClickButton2(Vector2.new())
+end)
+--variables
+local player = game.Players.LocalPlayer
+local mission = player.PlayerGui:WaitForChild("Main"):WaitForChild("ingame"):WaitForChild("Missionstory")
+--loading wally ui revamped By Aika
+local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/AikaV3rm/UiLib/master/Lib.lua')))()
+local w = library:CreateWindow("AF - Shindo Life")
+_G.ToggleColor = Color3.fromRGB(117, 50, 168)
+_G.ButtonColor = Color3.fromRGB(117, 50, 168)
+_G.ButtonTextColor = Color3.fromRGB(255, 255, 255)
+--AUTOFARM
+local b = w:CreateFolder("AutoFarm")
+local daynight = b:Label("GECE/GUNDUZ",{
+	TextSize = 22;
+	TextColor = Color3.fromRGB(255,255,255); 
+	BgColor = Color3.fromRGB(117, 50, 168);
+}) 
+b:Label("GECE = Gorev Yok", {
+TextSize = 22;
+	TextColor = Color3.fromRGB(255,255,255); 
+	BgColor = Color3.fromRGB(117, 50, 168);
+}) 
+
+local autofarm
+b:Toggle("AutoFarm(Kasilmaya Basla)",function(bool)
+	autofarm = bool
+end)
+local RANKUPP
+b:Toggle("Otomatik Rank Atla",function(bool)
+	RANKUPP = bool
+end)
+
+local disp = b:Label("GOREV SAYISI",{
+	TextSize = 22;
+	TextColor = Color3.fromRGB(255,255,255); 
+	BgColor = Color3.fromRGB(117, 50, 168);
+}) 
+local qdone = b:Label("BİTİREN GOREV SAYISI", {
+TextSize = 22;
+	TextColor = Color3.fromRGB(255,255,255); 
+	BgColor = Color3.fromRGB(117, 50, 168);
+}) 
+local LEVEL = player.statz.lvl.lvl
+local questdone = 0
+local function QUESTDONE()
+	questdone = questdone + 1
+end
+local function QUEST()
+    for i,v in pairs(workspace.missiongivers:GetChildren()) do
+        if v.Name == "" and v:FindFirstChild("Head") then
+            local TALK = v:FindFirstChild("Talk")
+            if v:FindFirstChild("Head") and v.Head:FindFirstChild("givemission") and v.Head.givemission.Enabled and v.Head.givemission:FindFirstChild("color").Image == "http://www.roblox.com/asset/?id=5459241648" --[[or v.Head.givemission.color.Image == "http://www.roblox.com/asset/?id=5459241799"]] then
+    		    if v:WaitForChild("Talk"):WaitForChild("mobname") then
+    			    local getmission = v:FindFirstChild("HumanoidRootPart")
+                    local clienttalk = v:FindFirstChild("CLIENTTALK")
+                    repeat wait()
+    				    pcall(function()
+    				        player.Character.HumanoidRootPart.CFrame=getmission.CFrame+Vector3.new(0,-7,0)
+                            clienttalk:FireServer()
+                            clienttalk:FireServer("accept")
+                        end)                
+                    until mission.Visible or not autofarm
+                end
+            end
+        end
+    end
+    QUESTDONE()
+end
+
+local function FARM()
+    for i,v in pairs(workspace.npc:GetChildren()) do
+		local mobname = string.split(mission.bg.name.Text,"Defeat ")[1]
+        if(string.find(mobname,"(s)")) then
+			mobname = string.gsub(mobname,"(s)","")
+        end
+        if v.ClassName == "Model" and v:FindFirstChild("npctype") and string.find(v.Name, "npc") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Head.CFrame.Y > -1000 then
+			repeat wait()
+				pcall(function()
+                    player.Character.HumanoidRootPart.CFrame=v.HumanoidRootPart.CFrame+Vector3.new(0,-7,0)
+                    v.Humanoid.Health = 0
+                end)
+            until v.Humanoid.Health == 0 or mission.Visible == false or not autofarm or not v
+        end
+    end
+end
+local count
+local function DISP()
+	count = 0
+	for i,v in pairs(workspace.missiongivers:GetChildren()) do
+		if v.Name == "" and v:FindFirstChild("Head") then
+            if v:FindFirstChild("Head") and v.Head:FindFirstChild("givemission") and v.Head.givemission.Enabled and v.Head.givemission:FindFirstChild("color") and v.Head.givemission.color.Image == "http://www.roblox.com/asset/?id=5459241648" --[[or v.Head.givemission.color.Image == "http://www.roblox.com/asset/?id=5459241799"]] then
+			    count = count + 1
+			end
+		end
+	end
+end
+
+spawn(function()
+    while wait() do
+        if autofarm then
+			DISP()
+			if count > 0 and mission.Visible == false then
+			   QUEST()
+	    	else
+	    	    FARM()
+            end
+        end
+    end
+end)
+
+local PRES = player.statz.prestige.maxlvlpres
+local RANK = player.statz.prestige.rank
+local RANKNUM = player.statz.prestige.number
+
+spawn(function()
+	while wait() do
+		if RANKUPP and player.statz.lvl:FindFirstChild("lvl").Value == 1000 then
+			if PRES.Value >= 1 or PRES.Value == 0 and RANK.Value == "Z" and RANKNUM.Value == "3" then
+				repeat wait()
+					player.startevent:FireServer("maxlvlpres")
+				until player.statz.lvl:FindFirstChild("lvl").Value == 1 or not RANKUPP
+			else
+				repeat wait()
+					game.Players.LocalPlayer.startevent:FireServer("rankup")
+				until player.statz.lvl:FindFirstChild("lvl").Value == 1 or not RANKUPP
+			end
+		end
+	end
+end)
+				
+game:GetService('RunService').Stepped:connect(function()
+    if autofarm then
+	    pcall(function()
+		    game.Players.LocalPlayer.Character.Humanoid:ChangeState(11)
+		    if game:GetService("Workspace").daynight.Value == true then
+		        daynight:Refresh("NIGHT")
+		    else
+		        daynight:Refresh("DAY")
+		    end
+			disp:Refresh("Gorevler: " .. tostring(count))
+			qdone:Refresh("Bitiren: " .. tostring(questdone))
+		end)
+	end
+end)
+local amigo,brr = pcall(function()
+    game:GetService("RunService"):UnbindFromRenderStep(game.Players.LocalPlayer.Name .. "Main")
+end)
+
+
+local f = w:CreateFolder("Yapimci")
+f:Label("Yapan reav#2966 Ceviren TheEmre#0310",{
+	TextSize = 15;
+    TextColor = Color3.fromRGB(255,255,255); 
+    BgColor = Color3.fromRGB(117, 50, 168);
+}) 
+f:Label("https://discord.gg/eNM6ZRrhrX",{
+	TextSize = 17;
+    TextColor = Color3.fromRGB(255,255,255); 
+    BgColor = Color3.fromRGB(117, 50, 168); 
+}) 
+f:Button("Discord Daveti Kopyala",function()
+	setclipboard("https://discord.gg/eNM6ZRrhrX")
+end)
